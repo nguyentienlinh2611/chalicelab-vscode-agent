@@ -541,6 +541,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 }
 
+// Hàm này trả về nội dung HTML đầy đủ cho Webview Panel
 function getWebviewContent(): string {
     const webviewManager = new WebviewManager(null);
     return webviewManager.generateHTML();

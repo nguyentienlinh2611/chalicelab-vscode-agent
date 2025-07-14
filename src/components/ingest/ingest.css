@@ -1,0 +1,40 @@
+/* Ingest Section */
+.ingest-section {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 8px;
+    background-color: var(--vscode-input-background);
+}
+
+.section h2 {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.result-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--vscode-textBlockQuote-background);
+    border-radius: 8px;
+    border: 1px solid var(--vscode-textBlockQuote-border);
+    white-space: pre-wrap;
+    font-family: 'Courier New', Courier, monospace;
+    min-height: 60px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.result-container.success {
+    color: var(--vscode-terminal-ansiGreen);
+}
+
+.result-container.error {
+    color: var(--vscode-errorForeground);
+}

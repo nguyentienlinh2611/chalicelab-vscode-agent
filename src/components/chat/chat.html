@@ -1,0 +1,31 @@
+<!-- Chat Tab -->
+<div id="chat-tab" class="tab-content active">
+    <div class="chat-header">
+        <div class="chat-title" id="chat-title">ChaliceLab Assistant</div>
+        <div id="server-status" class="status-indicator status-checking">
+            <div class="status-dot"></div>
+            <span>Checking...</span>
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+        <div class="empty-state" id="empty-state">
+            <h2>Welcome to ChaliceLab Assistant</h2>
+            <p>Get started by creating your first conversation or asking questions about microservices architecture.</p>
+            <button class="welcome-action" onclick="showNewChatModal()">Create Your First Chat</button>
+        </div>
+    </div>
+
+    <div class="chat-input">
+        <div class="input-container">
+            <textarea 
+                id="message-input" 
+                class="message-input" 
+                placeholder="Ask about ChaliceLab microservices..."
+                rows="1"
+            ></textarea>
+            <button id="send-btn" class="send-btn">Send</button>
+            <button id="stop-btn" class="stop-btn">Stop</button>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,6 @@
 const esbuild = require("esbuild");
+const fs = require("fs");
+const path = require("path");
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -23,6 +25,33 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
+/**
+ * Plugin to bundle CSS and HTML files
+ * @type {import('esbuild').Plugin}
+ */
+const bundleAssetsPlugin = {
+	name: 'bundle-assets',
+	setup(build) {
+		// Handle .css files
+		build.onLoad({ filter: /\.css$/ }, async (args) => {
+			const text = await fs.promises.readFile(args.path, 'utf8');
+			return {
+				contents: `export default ${JSON.stringify(text)};`,
+				loader: 'js',
+			};
+		});
+
+		// Handle .html files
+		build.onLoad({ filter: /\.html$/ }, async (args) => {
+			const text = await fs.promises.readFile(args.path, 'utf8');
+			return {
+				contents: `export default ${JSON.stringify(text)};`,
+				loader: 'js',
+			};
+		});
+	},
+};
+
 async function main() {
 	const ctx = await esbuild.context({
 		entryPoints: [
@@ -38,6 +67,7 @@ async function main() {
 		external: ['vscode'],
 		logLevel: 'silent',
 		plugins: [
+			bundleAssetsPlugin,
 			/* add to the end of plugins array */
 			esbuildProblemMatcherPlugin,
 		],
