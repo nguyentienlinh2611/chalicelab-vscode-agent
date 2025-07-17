@@ -2,6 +2,7 @@ import { SidebarManager } from '../components/sidebar/sidebar';
 import { ChatManager } from '../components/chat/chat';
 import { IngestManager } from '../components/ingest/ingest';
 import { ModalsManager } from '../components/modals/modals';
+import { SettingsManager } from '../components/settings/SettingsManager';
 import { TabManager } from '../utils/tab-manager';
 import { HealthChecker } from '../utils/health-checker';
 
@@ -10,89 +11,98 @@ const vscode = acquireVsCodeApi();
 
 // Khởi tạo và quản lý ứng dụng webview
 class App {
-    constructor() {
-        const sidebarManager = new SidebarManager(vscode);
-        const chatManager = new ChatManager(vscode);
-        const ingestManager = new IngestManager(vscode);
-        const modalsManager = new ModalsManager(vscode);
-        const tabManager = new TabManager();
-        const healthChecker = new HealthChecker(vscode);
+    private sidebarManager: SidebarManager;
+    private chatManager: ChatManager;
+    private ingestManager: IngestManager;
+    private modalsManager: ModalsManager;
+    private settingsManager: SettingsManager;
+    private tabManager: TabManager;
+    private healthChecker: HealthChecker;
 
-        // Set up global functions for onclick handlers
-        window.loadConversation = (id) => sidebarManager.loadConversation(id);
-        window.deleteConversation = (id) => {
-            modalsManager.conversationToDelete = id;
-            modalsManager.showDeleteModal();
-        };
-        window.renameConversation = (id, title) => {
-            modalsManager.setRenameValues(id, title);
-            modalsManager.showRenameModal();
-        };
-        window.showNewChatModal = () => modalsManager.showNewChatModal();
-        window.showDeleteModal = () => modalsManager.showDeleteModal();
-        window.showRenameModal = () => modalsManager.showRenameModal();
-        window.updateChatTitle = (title) => chatManager.updateChatTitle(title);
-    
+    constructor() {
+        this.sidebarManager = new SidebarManager(vscode);
+        this.chatManager = new ChatManager(vscode);
+        this.ingestManager = new IngestManager(vscode);
+        this.modalsManager = new ModalsManager(vscode);
+        this.settingsManager = new SettingsManager(vscode);
+        this.tabManager = new TabManager();
+        this.healthChecker = new HealthChecker(vscode);
+
+        this.setupEventListeners();
+        
         // Message handling
         window.addEventListener('message', event => {
             const message = event.data;
             
             switch (message.command) {
+                case 'settingsLoaded':
+                    this.settingsManager.setSettings(message.settings);
+                    break;
+                case 'connectionStatus':
+                    this.settingsManager.setConnectionStatus(message.status, message.message);
+                    break;
                 case 'conversationsLoaded':
-                    sidebarManager.displayConversations(message.conversations);
+                    this.sidebarManager.displayConversations(message.conversations);
                     break;
                     
                 case 'conversationLoaded':
-                    chatManager.displayConversation(message.conversation);
-                    chatManager.updateChatTitle(message.conversation.title);
+                    this.chatManager.displayConversation(message.conversation);
+                    this.chatManager.updateChatTitle(message.conversation.title);
+                    this.chatManager.setCurrentConversationId(message.conversation.id);
                     break;
                     
                 case 'clearConversation':
-                    chatManager.clearMessages();
-                    chatManager.updateChatTitle('');
+                    this.chatManager.clearMessages();
+                    this.chatManager.updateChatTitle('');
                     if (message.customTitle) {
-                        chatManager.setCustomTitleForNewConversation(message.customTitle);
+                        this.chatManager.setCustomTitleForNewConversation(message.customTitle);
                     }
                     break;
                     
                 case 'addUserMessage':
-                    chatManager.addMessage(message.text, 'user');
+                    this.chatManager.addMessage(message.text, 'user');
                     break;
                     
                 case 'updateStreamingResult':
+                    console.log('Received streaming result:', message.text);
+                    // Nếu đây là chunk đầu tiên của một luồng mới, hãy tạo một tin nhắn mới.
+                    if (!this.chatManager.getIsStreaming()) {
+                        this.chatManager.addMessage('', 'assistant');
+                        this.chatManager.setStreaming(true);
+                    }
+                    
+                    // Cập nhật nội dung của tin nhắn cuối cùng.
+                    this.chatManager.updateLastMessage(message.text, false);
+
+                    // Nếu đây là chunk cuối cùng, đánh dấu là đã hoàn thành.
                     if (message.isComplete) {
-                        chatManager.updateLastMessage(message.text, true);
-                        chatManager.setStreaming(false);
-                    } else {
-                        if (document.querySelectorAll('.message.assistant').length === 0) {
-                            chatManager.addMessage('', 'assistant');
-                        }
-                        chatManager.updateLastMessage(message.text, false);
+                        this.chatManager.updateLastMessage(message.text, true);
+                        this.chatManager.setStreaming(false);
                     }
                     break;
 
                 case 'setConversationId':
-                    sidebarManager.setCurrentConversationId(message.conversationId);
-                    chatManager.setCurrentConversationId(message.conversationId);
+                    this.sidebarManager.setCurrentConversationId(message.conversationId);
+                    this.chatManager.setCurrentConversationId(message.conversationId);
                     if (message.conversationId) {
                         setTimeout(() => {
-                            sidebarManager.loadConversations();
+                            this.sidebarManager.loadConversations();
                         }, 100);
                     }
                     break;
                     
                 case 'showLoading':
-                    chatManager.setStreaming(message.isLoading);
-                    ingestManager.setLoading(message.isLoading);
+                    this.chatManager.setStreaming(message.isLoading);
+                    this.ingestManager.setLoading(message.isLoading);
                     break;
                     
                 case 'showError':
-                    chatManager.addMessage(message.text, 'error');
-                    chatManager.setStreaming(false);
+                    this.chatManager.addMessage(message.text, 'error');
+                    this.chatManager.setStreaming(false);
                     break;
 
                 case 'showSuccess':
-                    const successMsg = chatManager.addMessage(message.text, 'assistant');
+                    const successMsg = this.chatManager.addMessage(message.text, 'assistant');
                     successMsg.style.backgroundColor = 'var(--vscode-terminal-ansiGreen)';
                     successMsg.style.color = 'var(--vscode-editor-background)';
                     setTimeout(() => {
@@ -103,25 +113,79 @@ class App {
                     break;
                     
                 case 'showIngestResult':
-                    ingestManager.showResult(message.text, true);
+                    this.ingestManager.showResult(message.text, true);
                     break;
                     
                 case 'healthStatus':
-                    chatManager.updateServerStatus(message.status);
+                    this.chatManager.updateServerStatus(message.status);
                     break;
                     
                 case 'loadConversations':
-                    sidebarManager.loadConversations();
+                    this.sidebarManager.loadConversations();
                     break;
 
                 case 'updateChatTitle':
-                    chatManager.updateChatTitle(message.title);
+                    this.chatManager.updateChatTitle(message.title);
+                    break;
+                    
+                case 'showRenameModal':
+                    this.modalsManager.setRenameValues(message.conversationId, message.currentTitle);
+                    this.modalsManager.showRenameModal();
+                    break;
+                    
+                case 'showNewChatModal':
+                    this.modalsManager.showNewChatModal();
                     break;
             }
         });
 
         // Start health checking
-        healthChecker.start();
+        this.healthChecker.start();
+    }
+
+    private setupEventListeners(): void {
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.initializeEventListeners();
+            });
+        } else {
+            this.initializeEventListeners();
+        }
+    }
+
+    private initializeEventListeners(): void {
+        // Set up event listener for welcome new chat button
+        const welcomeNewChatBtn = document.getElementById('welcome-new-chat');
+        if (welcomeNewChatBtn) {
+            welcomeNewChatBtn.addEventListener('click', () => {
+                this.modalsManager.showNewChatModal();
+            });
+        }
+        
+        // Set up communication between sidebar and modals
+        this.setupSidebarModalCommunication();
+    }
+
+    private setupSidebarModalCommunication(): void {
+        // Override the sidebar methods to work with modals manager
+        const originalDeleteConversation = this.sidebarManager.deleteConversation.bind(this.sidebarManager);
+        const originalRenameConversation = this.sidebarManager.renameConversation.bind(this.sidebarManager);
+        const originalShowNewChatModal = this.sidebarManager['showNewChatModal'].bind(this.sidebarManager);
+
+        this.sidebarManager.deleteConversation = (id: string) => {
+            this.modalsManager.conversationToDelete = id;
+            this.modalsManager.showDeleteModal();
+        };
+
+        this.sidebarManager.renameConversation = (id: string, title: string) => {
+            this.modalsManager.setRenameValues(id, title);
+            this.modalsManager.showRenameModal();
+        };
+
+        this.sidebarManager['showNewChatModal'] = () => {
+            this.modalsManager.showNewChatModal();
+        };
     }
 }
 

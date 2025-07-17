@@ -1,4 +1,15 @@
 /* src/webview/main.css */
+
+
+/* Import các file CSS thành phần */
+@import '../components/sidebar/sidebar.css';
+@import '../components/chat/chat.css';
+@import '../components/ingest/ingest.css';
+@import '../components/modals/modals.css';
+@import '../components/settings/settings.css';
+@import '../styles/markdown.css';
+
+/* Base styles for the entire application */
 /* Base styles for the entire application */
 * {
     margin: 0;
@@ -21,6 +32,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    overflow-y: auto;
 }
 
 /* Tab styles */
@@ -59,10 +71,86 @@ body {
     display: flex;
     flex-direction: column;
 }
-/* ... Các style base khác của bạn ... */
 
-/* Import các file CSS thành phần */
-@import '../components/sidebar/sidebar.css';
-@import '../components/chat/chat.css';
-@import '../components/ingest/ingest.css';
-@import '../components/modals/modals.css';
+/* Status indicator */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.status-online {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-offline {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status-checking {
+    background-color: #ffc107;
+    color: black;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+/* Form elements */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 4px;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    font-size: 1em;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--vscode-focusBorder);
+}
+
+.form-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    font-size: 1em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.form-btn:hover {
+    opacity: 0.8;
+}
+
+.form-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+
+/* ... Các style base khác của bạn ... */

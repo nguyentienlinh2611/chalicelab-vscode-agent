@@ -1,33 +1,60 @@
-// src/services/ApiService.ts
 import * as https from 'https';
 import * as http from 'http';
 import { URL } from 'url';
 import { EventEmitter } from 'events';
 
-export class ApiService {
-    private baseUrl = 'http://localhost:8000';
+/**
+ * Định nghĩa một kiểu tùy chỉnh cho EventEmitter để nó tường minh hơn.
+ * Nó sẽ phát ra các sự kiện 'data', 'end', và 'error'.
+ */
+export interface StreamEventEmitter extends EventEmitter {
+    destroy(): void;
+}
 
-    public async getHealthStatus(): Promise<'online' | 'offline'> {
+export class ApiService {
+    private host: string = 'http://localhost:8000';
+
+    public setHost(host: string) {
+        this.host = host;
+    }
+
+    /**
+     * Kiểm tra trạng thái của server backend.
+     */
+    public async getHealthStatus(host?: string): Promise<'online' | 'offline'> {
+        const targetHost = host || this.host;
         try {
-            const response = await this.makeRequest(`${this.baseUrl}/health`);
-            return response.ok ? 'online' : 'offline';
-        } catch {
+            const response = await fetch(`${targetHost}/health`);
+            if (response.ok) {
+                return 'online';
+            }
+            return 'offline';
+        } catch (error) {
             return 'offline';
         }
     }
-    
-    public async streamQuery(params: { query: string, conversationId: string | null, customTitle?: string }): Promise<EventEmitter> {
-        const streamEmitter = new EventEmitter();
-        const urlObj = new URL(`${this.baseUrl}/query`);
-        
+
+    /**
+     * Gửi một truy vấn và nhận về một stream các câu trả lời.
+     */
+    public async streamQuery(params: {
+        query: string;
+        conversationId?: string | null;
+        customTitle?: string | null;
+    }): Promise<StreamEventEmitter> {
+        const streamEmitter = new EventEmitter() as StreamEventEmitter;
+        const urlObj = new URL(`${this.host}/query`);
+        if (params.conversationId) {
+            urlObj.searchParams.append('conversation_id', params.conversationId);
+        }
+        if (params.customTitle) {
+            urlObj.searchParams.append('custom_title', params.customTitle);
+        }
+
         const requestBody: any = {
             query: params.query,
             stream: true,
-            conversation_id: params.conversationId,
         };
-        if (!params.conversationId && params.customTitle) {
-            requestBody.custom_title = params.customTitle;
-        }
 
         const options = {
             hostname: urlObj.hostname,
@@ -39,84 +66,102 @@ export class ApiService {
 
         const req = http.request(options, (res) => {
             if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-                res.on('data', chunk => streamEmitter.emit('data', chunk.toString()));
+                res.on('data', (chunk: Buffer) => {
+                    const chunkText = chunk.toString();
+                    console.log('Received chunk:', chunkText);
+                    // Giả sử server trả về JSON trên mỗi dòng
+                    streamEmitter.emit('data', { "conversation_id": params.conversationId, "response": chunkText });
+                });
                 res.on('end', () => streamEmitter.emit('end'));
-                res.on('error', err => streamEmitter.emit('error', err));
+                res.on('error', (err) => streamEmitter.emit('error', err));
             } else {
                 streamEmitter.emit('error', new Error(`HTTP Error: ${res.statusCode}`));
             }
         });
 
-        req.on('error', err => streamEmitter.emit('error', err));
+        req.on('error', (err) => streamEmitter.emit('error', err));
+        req.on('timeout', () => {
+            req.destroy();
+            streamEmitter.emit('error', new Error('Request timeout'));
+        });
+
+        // Cung cấp một hàm để hủy stream từ bên ngoài
+        streamEmitter.destroy = () => {
+            if (!req.destroyed) {
+                req.destroy();
+            }
+        };
+
         req.write(JSON.stringify(requestBody));
         req.end();
         
         return streamEmitter;
     }
 
-    // ... Thêm các hàm khác ở đây: loadConversations, deleteConversation, etc.
-    // bằng cách gọi this.makeRequest(...)
+    private async makeRequest(url: string, options: RequestInit = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            },
+        });
 
-    private makeRequest(url: string, options: any = {}): Promise<any> {
-        return new Promise((resolve, reject) => {
-            const urlObj = new URL(url);
-            const protocol = urlObj.protocol === 'https:' ? https : http;
-            
-            const requestOptions = {
-                hostname: urlObj.hostname,
-                port: urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
-                path: urlObj.pathname,
-                method: options.method || 'GET',
-                headers: options.headers || {},
-                timeout: options.timeout || 30000
-            };
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+            throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
 
-            const req = protocol.request(requestOptions, (res) => {
-                if (options.stream) {
-                    // For streaming responses, return the response object directly
-                    resolve(res);
-                } else {
-                    let data = '';
-                    res.on('data', (chunk) => {
-                        data += chunk;
-                    });
-                    res.on('end', () => {
-                        try {
-                            // Try to parse as JSON first
-                            const result = JSON.parse(data);
-                            resolve({ 
-                                ok: res.statusCode! >= 200 && res.statusCode! < 300, 
-                                status: res.statusCode, 
-                                json: () => result,
-                                text: () => data
-                            });
-                        } catch (error) {
-                            // If JSON parsing fails, return as text
-                            resolve({ 
-                                ok: res.statusCode! >= 200 && res.statusCode! < 300, 
-                                status: res.statusCode, 
-                                text: () => data,
-                                json: () => { throw new Error('Response is not valid JSON'); }
-                            });
-                        }
-                    });
-                }
-            });
+    /**
+     * Tải danh sách tất cả các cuộc hội thoại.
+     */
+    public async loadConversations(): Promise<any[]> {
+        return this.makeRequest(`${this.host}/conversations`);
+    }
 
-            req.on('error', (error) => {
-                reject(error);
-            });
+    /**
+     * Tải chi tiết một cuộc hội thoại.
+     */
+    public async loadConversation(id: string): Promise<any> {
+        return this.makeRequest(`${this.host}/conversations/${id}`);
+    }
 
-            req.on('timeout', () => {
-                req.destroy();
-                reject(new Error('Request timeout'));
-            });
+    /**
+     * Xóa một cuộc hội thoại.
+     */
+    public async deleteConversation(id: string): Promise<void> {
+        await this.makeRequest(`${this.host}/conversations/${id}`, { method: 'DELETE' });
+    }
 
-            if (options.body) {
-                req.write(options.body);
-            }
+    /**
+     * Đổi tên một cuộc hội thoại.
+     */
+    public async renameConversation(id: string, newTitle: string): Promise<void> {
+        await this.makeRequest(`${this.host}/conversations/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ title: newTitle }),
+        });
+    }
 
-            req.end();
+    /**
+     * Nạp dữ liệu từ một repository cục bộ.
+     */
+    public async ingestLocal(repoPath: string): Promise<any> {
+        return this.makeRequest(`${this.host}/ingest/local`, {
+            method: 'POST',
+            body: JSON.stringify({ repo_path: repoPath }),
+        });
+    }
+
+    /**
+     * Nạp dữ liệu từ một Git repository.
+     */
+    public async ingestGit(params: { repo_url: string; local_dir: string; branch?: string }): Promise<any> {
+        return this.makeRequest(`${this.host}/ingest/git`, {
+            method: 'POST',
+            body: JSON.stringify(params),
         });
     }
 }

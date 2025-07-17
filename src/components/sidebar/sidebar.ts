@@ -24,23 +24,57 @@ export class SidebarManager {
     private initialize(): void {
         this.loadConversations();
         this.newChatBtn.addEventListener('click', () => this.newConversation());
+        
+        // Set up event delegation for conversation actions
+        this.conversationsList.addEventListener('click', (event: Event) => {
+            const target = event.target as HTMLElement;
+            const conversationItem = target.closest('.conversation-item') as HTMLElement;
+            
+            if (!conversationItem) {
+                return;
+            }
+            
+            const conversationId = conversationItem.getAttribute('data-conversation-id');
+            if (!conversationId) {
+                return;
+            }
+            
+            if (target.classList.contains('delete-btn')) {
+                event.stopPropagation();
+                this.deleteConversation(conversationId);
+            } else if (target.classList.contains('rename-btn')) {
+                event.stopPropagation();
+                const titleElement = conversationItem.querySelector('.conversation-title');
+                const currentTitle = titleElement?.textContent || '';
+                this.renameConversation(conversationId, currentTitle);
+            } else if (target.closest('.conversation-item') && !target.closest('.conversation-actions')) {
+                // Click on conversation item itself (not on action buttons)
+                this.loadConversation(conversationId);
+            }
+        });
     }
 
     public loadConversations(): void {
         this.vscode.postMessage({ command: 'loadConversations' });
     }
 
-    public displayConversations(conversations: Conversation[]): void {
+    public displayConversations(conversations: Conversation[] | null | undefined): void {
+        console.log('Received conversations:', conversations);
         this.conversationsList.innerHTML = '';
         
+        // Đảm bảo conversations là một mảng trước khi lặp
+        const conversationArray = Array.isArray(conversations) ? conversations : [];
+        console.log('Processing conversations array:', conversationArray);
+
         // If no conversations exist, show new chat modal for first-time experience
-        if (conversations.length === 0) {
+        if (conversationArray.length === 0) {
             setTimeout(() => {
                 this.showNewChatModal();
             }, 500); // Small delay to let the UI settle
         }
         
-        conversations.forEach(conv => {
+        conversationArray.forEach(conv => {
+            console.log('Displaying conversation:', conv);
             const item = document.createElement('div');
             item.className = 'conversation-item';
             item.setAttribute('data-conversation-id', conv.id);
@@ -48,13 +82,13 @@ export class SidebarManager {
             const date = new Date(conv.updated_at).toLocaleDateString();
             
             item.innerHTML = `
-                <div style="flex: 1;" onclick="loadConversation('${conv.id}')">
+                <div class="conversation-content">
                     <div class="conversation-date">${date}</div>
                     <div class="conversation-title">${conv.title}</div>
                 </div>
                 <div class="conversation-actions">
-                    <button class="rename-btn" onclick="renameConversation('${conv.id}', '${conv.title.replace(/'/g, "\\'")}'); event.stopPropagation();" title="Rename">📝</button>
-                    <button class="delete-btn" onclick="deleteConversation('${conv.id}'); event.stopPropagation();" title="Delete">×</button>
+                    <button class="rename-btn" title="Rename">📝</button>
+                    <button class="delete-btn" title="Delete">×</button>
                 </div>
             `;
             
@@ -78,34 +112,27 @@ export class SidebarManager {
         const activeItem = document.querySelector(`[data-conversation-id="${conversationId}"]`);
         if (activeItem) {
             activeItem.classList.add('active');
-            // Update chat title with conversation title
-            const titleElement = activeItem.querySelector('.conversation-title');
-            if (titleElement && titleElement.textContent) {
-                window.updateChatTitle(titleElement.textContent);
-            }
+            // The chat title will be updated via message handling in the main app
         }
     }
 
     public deleteConversation(conversationId: string): void {
-        window.conversationToDelete = conversationId;
-        window.showDeleteModal();
+        // This method will be overridden by App class to connect with modals
+        console.log('Delete conversation:', conversationId);
     }
 
     public renameConversation(conversationId: string, currentTitle: string): void {
-        window.conversationToRename = conversationId;
-        const input = document.getElementById('new-conversation-title') as HTMLInputElement;
-        if (input) {
-            input.value = currentTitle;
-        }
-        window.showRenameModal();
+        // This method will be overridden by App class to connect with modals
+        console.log('Rename conversation:', conversationId, currentTitle);
     }
 
     private newConversation(): void {
-        window.showNewChatModal();
+        this.showNewChatModal();
     }
 
     private showNewChatModal(): void {
-        window.showNewChatModal();
+        // This method will be overridden by App class to connect with modals
+        console.log('Show new chat modal');
     }
 
     public setCurrentConversationId(id: string | null): void {
@@ -114,20 +141,5 @@ export class SidebarManager {
 
     public getCurrentConversationId(): string | null {
         return this.currentConversationId;
-    }
-}
-
-// Make functions global for onclick handlers
-declare global {
-    interface Window {
-        loadConversation: (id: string) => void;
-        deleteConversation: (id: string) => void;
-        renameConversation: (id: string, title: string) => void;
-        conversationToDelete: string | null;
-        conversationToRename: string | null;
-        showDeleteModal: () => void;
-        showRenameModal: () => void;
-        showNewChatModal: () => void;
-        updateChatTitle: (title: string) => void;
     }
 }

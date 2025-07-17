@@ -1,0 +1,26 @@
+<!-- Settings Tab -->
+<div id="settings-tab" class="tab-content">
+    <div class="settings-container">
+        <h2>Settings</h2>
+
+        <div class="setting-item">
+            <label for="rag-host-input">RAG Service Host</label>
+            <p class="setting-description">The base URL of the RAG (Retrieval-Augmented Generation) service.</p>
+            <input type="text" id="rag-host-input" class="form-input" placeholder="http://localhost:8000">
+            <button id="test-connection-btn" class="form-btn">Test Connection</button>
+            <div id="connection-status" class="connection-status"></div>
+        </div>
+
+        <div class="setting-item">
+            <label for="gen-ai-model-select">Generative AI Model</label>
+            <p class="setting-description">Select the model to use for generating responses.</p>
+            <select id="gen-ai-model-select" class="form-input">
+                <!-- Options will be loaded dynamically -->
+            </select>
+        </div>
+
+        <div class="settings-actions">
+            <button id="save-settings-btn" class="form-btn primary-btn">Save Changes</button>
+        </div>
+    </div>
+</div>

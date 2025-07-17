@@ -8,12 +8,12 @@ export class TabManager {
         document.addEventListener('click', (event: Event) => {
             const target = event.target as HTMLElement;
             if (target && target.classList.contains('tab')) {
-                this.switchTab(target.getAttribute('onclick')?.match(/'(.*)'/)?.[1] || '');
+                const tabName = target.getAttribute('data-tab');
+                if (tabName) {
+                    this.switchTab(tabName);
+                }
             }
         });
-
-        // Add global switchTab function
-        (window as any).switchTab = (tabName: string) => this.switchTab(tabName);
     }
 
     public switchTab(tabName: string): void {

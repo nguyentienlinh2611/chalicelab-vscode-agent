@@ -1,0 +1,209 @@
+/* Markdown Styles */
+.markdown-paragraph {
+    margin: 0.8em 0;
+    line-height: 1.6;
+}
+
+.markdown-h1 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 1em 0 0.5em 0;
+    color: var(--vscode-editor-foreground);
+    border-bottom: 2px solid var(--vscode-focusBorder);
+    padding-bottom: 0.3em;
+}
+
+.markdown-h2 {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 0.8em 0 0.4em 0;
+    color: var(--vscode-editor-foreground);
+    border-bottom: 1px solid var(--vscode-focusBorder);
+    padding-bottom: 0.2em;
+}
+
+.markdown-h3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0.6em 0 0.3em 0;
+    color: var(--vscode-editor-foreground);
+}
+
+.markdown-list {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+
+.markdown-listitem {
+    margin: 0.2em 0;
+    line-height: 1.5;
+}
+
+.markdown-blockquote {
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    border-left: 4px solid var(--vscode-focusBorder);
+    background-color: var(--vscode-textBlockQuote-background);
+    color: var(--vscode-textBlockQuote-foreground);
+    font-style: italic;
+}
+
+.code-block {
+    background-color: var(--vscode-textCodeBlock-background);
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 4px;
+    margin: 1em 0;
+    overflow-x: auto;
+}
+
+.code-block code {
+    display: block;
+    padding: 1em;
+    font-family: var(--vscode-editor-font-family, 'Consolas', 'Monaco', 'Courier New', monospace);
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: var(--vscode-editor-foreground);
+    white-space: pre;
+}
+
+.inline-code {
+    background-color: var(--vscode-textCodeBlock-background);
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 3px;
+    padding: 0.1em 0.3em;
+    font-family: var(--vscode-editor-font-family, 'Consolas', 'Monaco', 'Courier New', monospace);
+    font-size: 0.9em;
+    color: var(--vscode-textPreformat-foreground);
+}
+
+/* Syntax highlighting */
+.keyword {
+    color: var(--vscode-symbolIcon-keywordForeground, #569cd6);
+    font-weight: bold;
+}
+
+.string {
+    color: var(--vscode-symbolIcon-stringForeground, #ce9178);
+}
+
+.comment {
+    color: var(--vscode-symbolIcon-colorForeground, #6a9955);
+    font-style: italic;
+}
+
+.type {
+    color: var(--vscode-symbolIcon-typeParameterForeground, #4ec9b0);
+}
+
+.json-string {
+    color: var(--vscode-symbolIcon-stringForeground, #ce9178);
+}
+
+.json-number {
+    color: var(--vscode-symbolIcon-numberForeground, #b5cea8);
+}
+
+.json-literal {
+    color: var(--vscode-symbolIcon-booleanForeground, #569cd6);
+}
+
+/* Streaming animation */
+.message.streaming::after {
+    content: '▋';
+    animation: cursor-blink 1s infinite;
+    color: var(--vscode-focusBorder);
+}
+
+@keyframes cursor-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Message styling improvements */
+.message.assistant {
+    position: relative;
+}
+
+.message.assistant .markdown-content {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Code block improvements */
+.code-block {
+    position: relative;
+}
+
+.code-block::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    font-size: 0.8em;
+    color: var(--vscode-descriptionForeground);
+    background-color: var(--vscode-badge-background);
+    padding: 0.2em 0.5em;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+/* Improve readability */
+.message {
+    max-width: 100%;
+}
+
+.message p:first-child {
+    margin-top: 0;
+}
+
+.message p:last-child {
+    margin-bottom: 0;
+}
+
+.code-container {
+    position: relative;
+    margin: 1em 0;
+    display: flex;
+}
+
+.code-container pre {
+    margin: 0;
+    position: relative;
+    display: contents;
+}
+
+
+.code-container pre code {
+    min-width: 100%;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    background-color: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    border: 1px solid var(--vscode-button-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.code-container:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.copy-btn.copied {
+    background-color: var(--vscode-terminal-ansiGreen);
+    color: var(--vscode-editor-background);
+}

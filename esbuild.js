@@ -1,5 +1,6 @@
 const esbuild = require("esbuild");
 const path = require("path");
+const fs = require("fs");
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -17,7 +18,9 @@ const esbuildProblemMatcherPlugin = {
         build.onEnd((result) => {
             result.errors.forEach(({ text, location }) => {
                 console.error(`✘ [ERROR] ${text}`);
-                console.error(`    ${location.file}:${location.line}:${location.column}:`);
+                if (location) {
+                    console.error(`    ${location.file}:${location.line}:${location.column}:`);
+                }
             });
             console.log(`[watch] build finished${result.errors.length ? " with errors" : ""}`);
         });
@@ -37,14 +40,13 @@ const extensionConfig = {
     plugins: [esbuildProblemMatcherPlugin],
 };
 
-// --- Cấu hình build cho Webview (Browser) ---
 const webviewConfig = {
     entryPoints: [
         'src/webview/main.ts',
         'src/webview/main.css'
     ],
     bundle: true,
-    outdir: 'dist', // Dùng outdir vì có nhiều file output
+    outdir: 'dist',
     format: 'iife',
     platform: 'browser',
     sourcemap: !production,
@@ -52,17 +54,19 @@ const webviewConfig = {
     plugins: [esbuildProblemMatcherPlugin],
 };
 
+// --- Logic build ---
 async function main() {
     if (watch) {
         console.log('[watch] starting...');
-        // Sử dụng context để theo dõi thay đổi cho cả hai
         const extensionCtx = await esbuild.context(extensionConfig);
         const webviewCtx = await esbuild.context(webviewConfig);
         await Promise.all([extensionCtx.watch(), webviewCtx.watch()]);
     } else {
         console.log('[build] starting...');
-        // Build một lần cho cả hai
-        await Promise.all([esbuild.build(extensionConfig), esbuild.build(webviewConfig)]);
+        await Promise.all([
+            esbuild.build(extensionConfig),
+            esbuild.build(webviewConfig)
+        ]);
         console.log('[build] finished');
     }
 }
