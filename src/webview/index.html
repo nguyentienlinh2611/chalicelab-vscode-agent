@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource}; script-src 'nonce-${nonce}';">
+    <link href="${styleUri}" rel="stylesheet">
+    <title>ChaliceLab Project Agent</title>
+</head>
+<body>
+    <div class="sidebar">
+        </div>
+
+    <div class="main-content">
+        <!-- Header with tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('chat')">Chat</button>
+            <button class="tab" onclick="switchTab('ingest')">Ingest</button>
+        </div>
+    </div>
+
+    <div id="new-chat-modal" class="modal">
+    </div>
+    
+    <script nonce="${nonce}" src="${scriptUri}"></script>
+</body>
+</html>
