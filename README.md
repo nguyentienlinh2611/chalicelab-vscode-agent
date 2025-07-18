@@ -1,71 +1,197 @@
-# chalicelab-vscode-agent README
+# ChaliceLab VS Code Agent
 
-This is the README for your extension "chalicelab-vscode-agent". After writing up a brief description, we recommend including the following sections.
+A powerful VS Code extension that provides an intelligent AI assistant interface for the ChaliceLab project ecosystem. This extension integrates with a RAG (Retrieval-Augmented Generation) server to offer context-aware programming assistance, project guidance, and service deployment support.
 
-## Features
+## 🌟 Overview
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+ChaliceLab VS Code Agent is designed to enhance developer productivity within the ChaliceLab project environment. It provides a chat-based interface where developers can interact with an AI agent that has deep knowledge of the project's codebase, documentation, and system architecture.
 
-For example if there is an image subfolder under your extension project workspace:
+## ✨ Features
 
-\!\[feature X\]\(images/feature-x.png\)
+### 🤖 Intelligent AI Assistant
+- **Context-Aware Chat Interface**: Interactive chat UI for seamless communication with the AI agent
+- **Project-Specific Knowledge**: AI trained on ChaliceLab project documentation and codebase
+- **Real-time Streaming Responses**: Get immediate feedback with streaming response capability
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### 📚 Repository Integration
+- **Multi-Repository Ingestion**: Ingest and index multiple repositories from the ChaliceLab ecosystem
+- **Local Repository Support**: Index local project files for enhanced context understanding
+- **Git Repository Integration**: Direct integration with remote Git repositories
+- **Documentation Indexing**: Automatically process and index system documentation
 
-## Requirements
+### 🔧 Development Support
+- **Code Analysis**: Get insights and suggestions based on your current codebase
+- **Service Deployment Guidance**: Receive assistance with ChaliceLab service deployment
+- **Architecture Recommendations**: Get architectural advice based on project patterns
+- **Troubleshooting Support**: Debug issues with context from project history
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### 💬 Advanced Chat Features
+- **Conversation Management**: Save, load, and manage multiple conversation threads
+- **Conversation History**: Access previous discussions and maintain context
+- **Custom Conversation Titles**: Organize conversations with meaningful names
+- **Export Conversations**: Save important discussions for future reference
 
-## Extension Settings
+### ⚙️ Configuration & Settings
+- **RAG Server Configuration**: Configure connection to your RAG server
+- **Model Selection**: Choose from available AI models
+- **Connection Testing**: Verify server connectivity and health status
+- **Workspace Integration**: Seamless integration with VS Code workspace settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## 🚀 Getting Started
 
-For example:
+### Prerequisites
 
-This extension contributes the following settings:
+- **VS Code**: Version 1.101.0 or higher
+- **RAG Server**: A running ChaliceLab RAG server instance
+- **Node.js**: For development and extension compilation
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Installation
 
-## Known Issues
+#### From VS Code Marketplace
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Search for "ChaliceLab VS Code Agent"
+4. Click Install
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+#### Manual Installation
+1. Download the latest `.vsix` file from [Releases](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/releases)
+2. Open VS Code
+3. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+4. Click the three dots menu (...) → "Install from VSIX..."
+5. Select the downloaded `.vsix` file
 
-## Release Notes
+### Quick Setup
 
-Users appreciate release notes as you update your extension.
+1. **Open the Extension**:
+   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS)
+   - Type "ChaliceLab Project Agent" and select the command
 
-### 1.0.0
+2. **Configure RAG Server**:
+   - Click the settings icon in the extension panel
+   - Enter your RAG server URL (default: `http://localhost:8000`)
+   - Test the connection to ensure connectivity
 
-Initial release of ...
+3. **Ingest Your Project**:
+   - Use the "Ingest" tab to add your repositories
+   - Choose between local repository or Git repository ingestion
+   - Wait for the indexing process to complete
 
-### 1.0.1
+4. **Start Chatting**:
+   - Switch to the "Chat" tab
+   - Begin asking questions about your ChaliceLab project
 
-Fixed issue #.
+## 🏗️ Architecture
 
-### 1.1.0
+The extension consists of several key components:
 
-Added features X, Y, and Z.
+### Frontend Components
+- **Chat Interface**: Main conversation UI with message history and streaming support
+- **Sidebar Navigation**: Conversation management and navigation
+- **Settings Panel**: Configuration and server connection management
+- **Ingest Interface**: Repository ingestion and indexing controls
 
----
+### Backend Integration
+- **API Service**: Handles communication with the RAG server
+- **WebView Manager**: Manages VS Code webview panels and messaging
+- **Health Checker**: Monitors RAG server connectivity and status
 
-## Following extension guidelines
+### Data Flow
+```
+VS Code Extension ↔ RAG Server ↔ Vector Database ↔ Indexed Repositories
+```
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+## 🔧 Configuration
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+### Extension Settings
 
-## Working with Markdown
+The extension stores configuration in VS Code workspace settings:
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+- **RAG Server Host**: URL of your RAG server instance
+- **Selected Model**: AI model to use for responses
+- **Connection Timeout**: Timeout for server requests
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### RAG Server Setup
 
-## For more information
+Ensure your RAG server supports the following endpoints:
+- `/health` - Health check endpoint
+- `/query` - Main query endpoint with streaming support
+- `/conversations` - Conversation management
+- `/ingest/local` - Local repository ingestion
+- `/ingest/git` - Git repository ingestion
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+## 📖 Usage Examples
 
-**Enjoy!**
+### Basic Chat Interaction
+```
+User: How do I deploy the authentication service in ChaliceLab?
+AI: Based on the ChaliceLab documentation, here's how to deploy the authentication service...
+```
+
+### Repository Analysis
+```
+User: What's the structure of the user management module?
+AI: The user management module in ChaliceLab follows this structure...
+```
+
+### Troubleshooting Support
+```
+User: I'm getting a connection error when starting the API gateway
+AI: This error typically occurs when... Here are the troubleshooting steps...
+```
+
+## 🚀 Development
+
+### Building from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/nguyentienlinh2611/chalicelab-vscode-agent.git
+cd chalicelab-vscode-agent
+
+# Install dependencies
+yarn install
+
+# Compile the extension
+yarn compile
+
+# Package for distribution
+yarn package
+```
+
+### Development Workflow
+
+```bash
+# Start development with watch mode
+yarn watch
+
+# Run tests
+yarn test
+
+# Lint code
+yarn lint
+
+# Type checking
+yarn check-types
+```
+
+## 📝 Release Notes
+
+### 0.0.1 (Initial Release)
+
+- ✨ Initial chat interface with AI agent integration
+- 🔧 RAG server configuration and connection management
+- 📚 Local and Git repository ingestion support
+- 💬 Conversation management and history
+- ⚙️ Settings panel for server configuration
+- 🏥 Health monitoring and connection status
+
+## 🔗 Links
+
+- [Repository](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent)
+- [Issues](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/issues)
+- [Releases](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/releases)
+- [ChaliceLab Project](https://github.com/nguyentienlinh2611)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
