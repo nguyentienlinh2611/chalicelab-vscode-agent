@@ -1,12 +1,29 @@
 {
   "name": "chalicelab-vscode-agent",
-  "displayName": "chalicelab-vscode-agent",
+  "displayName": "ChaliceLab VS Code Agent",
   "description": "The \"lite\" OpenUI-inspired VS Code extension for ChaliceLab project",
   "version": "0.0.1",
+  "publisher": "chalicelab",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nguyentienlinh2611/chalicelab-vscode-agent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/issues"
+  },
+  "homepage": "https://github.com/nguyentienlinh2611/chalicelab-vscode-agent#readme",
+  "keywords": [
+    "ai",
+    "assistant",
+    "chalicelab",
+    "agent",
+    "productivity"
+  ],
   "engines": {
     "vscode": "^1.101.0"
   },
   "categories": [
+    "AI",
     "Other"
   ],
   "activationEvents": [],
@@ -32,7 +49,12 @@
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "release:patch": "npm version patch && git push && git push --tags",
+    "release:minor": "npm version minor && git push && git push --tags",
+    "release:major": "npm version major && git push && git push --tags",
+    "publish:vsce": "vsce publish",
+    "package:vsix": "vsce package"
   },
   "devDependencies": {
     "@types/highlight.js": "^9.12.4",

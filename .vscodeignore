@@ -12,3 +12,14 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+.github/**
+yarn.lock
+package-lock.json
+*.vsix
+test/**
+**/*.test.ts
+**/*.spec.ts
+**/.eslintrc.js
+**/.eslintrc.json
+.eslintrc.json
+**/jest.config.js

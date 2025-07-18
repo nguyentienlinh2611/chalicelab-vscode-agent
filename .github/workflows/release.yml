@@ -1,0 +1,134 @@
+name: Release VS Code Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+      
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
+      
+      - name: Run tests
+        run: |
+          xvfb-run -a yarn test
+        env:
+          DISPLAY: ':99.0'
+      
+      - name: Package extension
+        run: vsce package
+      
+      - name: Generate changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: |
+            {
+              "categories": [
+                {
+                  "title": "## 🚀 Features",
+                  "labels": ["feature", "enhancement"]
+                },
+                {
+                  "title": "## 🐛 Bug Fixes", 
+                  "labels": ["bug", "fix"]
+                },
+                {
+                  "title": "## 📚 Documentation",
+                  "labels": ["documentation", "docs"]
+                },
+                {
+                  "title": "## 🔧 Maintenance",
+                  "labels": ["maintenance", "chore"]
+                },
+                {
+                  "title": "## 💥 Breaking Changes",
+                  "labels": ["breaking"]
+                }
+              ],
+              "template": "#{{CHANGELOG}}\n\n**Full Changelog**: #{{UNCATEGORIZED}}",
+              "pr_template": "- #{{TITLE}} by @#{{AUTHOR}} in ##{{NUMBER}}",
+              "empty_template": "- No changes in this release",
+              "label_extractor": [
+                {
+                  "pattern": "feat(.*)",
+                  "target": "feature"
+                },
+                {
+                  "pattern": "fix(.*)",
+                  "target": "bug"
+                },
+                {
+                  "pattern": "docs(.*)",
+                  "target": "documentation"
+                },
+                {
+                  "pattern": "chore(.*)",
+                  "target": "maintenance"
+                }
+              ]
+            }
+          fromTag: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '*.vsix'
+          body: |
+            # Release ${{ steps.version.outputs.VERSION }}
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## Installation
+            
+            ### From VS Code Marketplace
+            1. Open VS Code
+            2. Go to Extensions (Ctrl+Shift+X)
+            3. Search for "chalicelab-vscode-agent"
+            4. Click Install
+            
+            ### Manual Installation
+            1. Download the `.vsix` file from this release
+            2. Open VS Code
+            3. Go to Extensions (Ctrl+Shift+X)
+            4. Click on the three dots menu (...) at the top
+            5. Select "Install from VSIX..."
+            6. Choose the downloaded `.vsix` file
+            
+            ## What's Changed
+            ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+          tag_name: ${{ github.ref_name }}
+          name: 'Release ${{ steps.version.outputs.VERSION }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
