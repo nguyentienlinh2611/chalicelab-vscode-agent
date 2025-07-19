@@ -6,6 +6,39 @@ const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
 
 /**
+ * Plugin to copy static files
+ */
+const copyPlugin = {
+    name: 'copy',
+    setup(build) {
+        build.onEnd(() => {
+            // Ensure dist directory exists
+            if (!fs.existsSync('dist')) {
+                fs.mkdirSync('dist', { recursive: true });
+            }
+            
+            // Copy HTML files to dist
+            const htmlFiles = [
+                'src/webview/index.html',
+                'src/components/chat/chat.html',
+                'src/components/sidebar/sidebar.html',
+                'src/components/ingest/ingest.html',
+                'src/components/settings/settings.html',
+                'src/components/modals/modals.html'
+            ];
+            
+            htmlFiles.forEach(file => {
+                if (fs.existsSync(file)) {
+                    const fileName = path.basename(file);
+                    fs.copyFileSync(file, `dist/${fileName}`);
+                    console.log(`Copied ${file} -> dist/${fileName}`);
+                }
+            });
+        });
+    },
+};
+
+/**
  * @type {import('esbuild').Plugin}
  * Plugin để hiển thị log và lỗi trong quá trình build (tùy chọn, có thể giữ lại)
  */
@@ -37,7 +70,7 @@ const extensionConfig = {
     platform: 'node',
     sourcemap: !production,
     minify: production,
-    plugins: [esbuildProblemMatcherPlugin],
+    plugins: [esbuildProblemMatcherPlugin, copyPlugin],
 };
 
 const webviewConfig = {

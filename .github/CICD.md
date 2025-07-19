@@ -255,7 +255,18 @@ RELEASE.md               # Release process documentation
    - Check repository Actions tab for workflow runs
    - Verify the workflow file syntax is correct
 
-6. **Semantic-release errors**
+6. **Permission denied errors (EGITNOPERMISSION)**
+   - Ensure workflow has proper permissions:
+   ```yaml
+   permissions:
+     contents: write
+     issues: write
+     pull-requests: write
+     actions: read
+   ```
+   - Check that GITHUB_TOKEN is properly configured in workflow env
+
+7. **Semantic-release errors**
    - Ensure all required dependencies are installed
    - Check GitHub token permissions for repository access
    - Verify conventional commit message format

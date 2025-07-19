@@ -12,16 +12,16 @@ export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.
     const githubDarkStyleUri = webview.asWebviewUri(vscode.Uri.joinPath(distPath, 'github-dark.css'));
     const nonce = getNonce();
     
-    // Tải template HTML từ file, ví dụ: src/webview/index.html
-    const htmlTemplatePath = vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'index.html');
+    // Tải template HTML từ file, ví dụ: dist/index.html
+    const htmlTemplatePath = vscode.Uri.joinPath(extensionUri, 'dist', 'index.html');
     let html = fs.readFileSync(htmlTemplatePath.fsPath, 'utf8');
 
 
-    const sidebarHTML = fs.readFileSync(path.join(extensionPath, 'src', 'components', 'sidebar', 'sidebar.html'), 'utf8');
-    const chatHTML = fs.readFileSync(path.join(extensionPath, 'src', 'components', 'chat', 'chat.html'), 'utf8');
-    const ingestHTML = fs.readFileSync(path.join(extensionPath, 'src', 'components', 'ingest', 'ingest.html'), 'utf8');
-    const settingsHTML = fs.readFileSync(path.join(extensionPath, 'src', 'components', 'settings', 'settings.html'), 'utf8');
-    const modalsHTML = fs.readFileSync(path.join(extensionPath, 'src', 'components', 'modals', 'modals.html'), 'utf8');
+    const sidebarHTML = fs.readFileSync(path.join(extensionPath, 'dist', 'sidebar.html'), 'utf8');
+    const chatHTML = fs.readFileSync(path.join(extensionPath, 'dist', 'chat.html'), 'utf8');
+    const ingestHTML = fs.readFileSync(path.join(extensionPath, 'dist', 'ingest.html'), 'utf8');
+    const settingsHTML = fs.readFileSync(path.join(extensionPath, 'dist', 'settings.html'), 'utf8');
+    const modalsHTML = fs.readFileSync(path.join(extensionPath, 'dist', 'modals.html'), 'utf8');
     
     
     // Thay thế các placeholder
