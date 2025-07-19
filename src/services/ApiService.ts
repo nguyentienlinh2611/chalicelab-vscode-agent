@@ -117,7 +117,7 @@ export class ApiService {
     /**
      * Tải danh sách tất cả các cuộc hội thoại.
      */
-    public async loadConversations(): Promise<any[]> {
+    public async loadConversations(): Promise<{conversations: []}> {
         return this.makeRequest(`${this.host}/conversations`);
     }
 

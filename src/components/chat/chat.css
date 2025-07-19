@@ -6,6 +6,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0; /* Không thu nhỏ header */
 }
 
 .chat-title {
@@ -48,6 +49,8 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    overflow-y: auto; /* Chỉ messages có thể cuộn */
+    overflow-x: hidden;
 }
 
 .message {
@@ -140,6 +143,7 @@
     padding: 20px;
     border-top: 1px solid var(--vscode-input-border);
     background-color: var(--vscode-editor-background);
+    flex-shrink: 0; /* Không thu nhỏ input */
 }
 
 .input-container {

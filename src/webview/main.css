@@ -42,7 +42,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 /* Tab styles */
@@ -50,6 +50,7 @@ body {
     display: flex;
     border-bottom: 1px solid var(--vscode-input-border);
     background-color: var(--vscode-editor-background);
+    flex-shrink: 0; /* Không thu nhỏ tabs */
 }
 
 .tab {
@@ -77,7 +78,9 @@ body {
 
 .tab-content {
     display: none;
-    height: 100%;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .tab-content.active {

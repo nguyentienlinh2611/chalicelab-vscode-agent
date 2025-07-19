@@ -213,14 +213,9 @@ export class ChaliceLabAgentProvider {
 
     private async handleLoadConversations() {
         try {
-            console.log('handleLoadConversations called');
-            const conversations = await this._apiService.loadConversations();
-            console.log('Loaded conversations from API:', conversations);
-            console.log('Type of conversations:', typeof conversations);
-            console.log('Is Array:', Array.isArray(conversations));
+            const { conversations } = await this._apiService.loadConversations();
             this.postMessage({ command: 'conversationsLoaded', conversations: conversations });
         } catch (error) {
-            console.error('Error in handleLoadConversations:', error);
             this.handleError(error, "Error loading conversations");
         }
     }
