@@ -137,6 +137,8 @@ git push origin main
 # 4. Create tag and GitHub release
 ```
 
+**Important Note**: GitHub Actions has a security feature where workflows won't trigger from the same commit that creates or modifies the workflow file. If you just added the release workflow, you'll need to make another commit to trigger it.
+
 ### Option 2: Manual Release via Yarn Commands
 ```bash
 # Test what would be released (dry run)
@@ -245,8 +247,15 @@ RELEASE.md               # Release process documentation
    - Verify commits follow conventional commit format
    - Check that commit types trigger releases (feat, fix, perf, etc.)
    - Use `yarn release:dry` to test what would be released
+   - **Important**: Workflows don't trigger from commits that create/modify the workflow file
 
-5. **Semantic-release errors**
+5. **Workflow not triggering on push**
+   - GitHub Actions won't run workflows from the same commit that creates/modifies them
+   - Make a new commit after adding workflow files
+   - Check repository Actions tab for workflow runs
+   - Verify the workflow file syntax is correct
+
+6. **Semantic-release errors**
    - Ensure all required dependencies are installed
    - Check GitHub token permissions for repository access
    - Verify conventional commit message format
