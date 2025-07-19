@@ -59,22 +59,25 @@ export class SidebarManager {
     }
 
     public displayConversations(conversations: Conversation[] | null | undefined): void {
-        console.log('Received conversations:', conversations);
+        console.log('displayConversations called with:', conversations);
+        console.log('Type of conversations:', typeof conversations);
+        console.log('Is Array:', Array.isArray(conversations));
+        
         this.conversationsList.innerHTML = '';
         
         // Đảm bảo conversations là một mảng trước khi lặp
         const conversationArray = Array.isArray(conversations) ? conversations : [];
-        console.log('Processing conversations array:', conversationArray);
+        console.log('conversationArray length:', conversationArray.length);
 
         // If no conversations exist, show new chat modal for first-time experience
         if (conversationArray.length === 0) {
+            console.log('No conversations found, showing new chat modal');
             setTimeout(() => {
                 this.showNewChatModal();
             }, 500); // Small delay to let the UI settle
         }
         
         conversationArray.forEach(conv => {
-            console.log('Displaying conversation:', conv);
             const item = document.createElement('div');
             item.className = 'conversation-item';
             item.setAttribute('data-conversation-id', conv.id);

@@ -213,16 +213,15 @@ export class ChaliceLabAgentProvider {
 
     private async handleLoadConversations() {
         try {
-            let conversations: any = await this._apiService.loadConversations();
-            // Đảm bảo rằng chúng ta luôn gửi đi một mảng
-            if (conversations && !Array.isArray(conversations) && Array.isArray(conversations.conversations)) {
-                conversations = conversations.conversations;
-            }
-            this.postMessage({ command: 'conversationsLoaded', conversations: conversations || [] });
+            console.log('handleLoadConversations called');
+            const conversations = await this._apiService.loadConversations();
+            console.log('Loaded conversations from API:', conversations);
+            console.log('Type of conversations:', typeof conversations);
+            console.log('Is Array:', Array.isArray(conversations));
+            this.postMessage({ command: 'conversationsLoaded', conversations: conversations });
         } catch (error) {
+            console.error('Error in handleLoadConversations:', error);
             this.handleError(error, "Error loading conversations");
-            // Gửi một mảng rỗng trong trường hợp có lỗi
-            this.postMessage({ command: 'conversationsLoaded', conversations: [] });
         }
     }
 

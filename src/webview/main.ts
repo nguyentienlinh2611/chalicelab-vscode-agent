@@ -42,6 +42,8 @@ class App {
                     this.settingsManager.setConnectionStatus(message.status, message.message);
                     break;
                 case 'conversationsLoaded':
+                    console.log('Received conversationsLoaded message:', message);
+                    console.log('Conversations data:', message.conversations);
                     this.sidebarManager.displayConversations(message.conversations);
                     break;
                     
