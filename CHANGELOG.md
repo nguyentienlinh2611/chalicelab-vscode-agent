@@ -1,3 +1,9 @@
+## [0.2.1](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/compare/v0.2.0...v0.2.1) (2025-07-19)
+
+### Bug Fixes
+
+* copy HTML files to dist directory in build process ([b4a1b46](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/commit/b4a1b463b1c029e7313b0c2b1e219d71f620bebf))
+
 ## [0.2.0](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/compare/v0.1.1...v0.2.0) (2025-07-19)
 
 ### Features
