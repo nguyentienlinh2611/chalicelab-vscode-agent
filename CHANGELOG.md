@@ -1,3 +1,9 @@
+## [0.2.2](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/compare/v0.2.1...v0.2.2) (2025-07-19)
+
+### Bug Fixes
+
+* update style chatbox ([461ba2a](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/commit/461ba2ae144f0813f23d80a3ac851fbfd92328f4))
+
 ## [0.2.1](https://github.com/nguyentienlinh2611/chalicelab-vscode-agent/compare/v0.2.0...v0.2.1) (2025-07-19)
 
 ### Bug Fixes
